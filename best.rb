@@ -73,8 +73,6 @@ end
 YEAR_OF_FIRST_TROPHY = 1945
 YEARS_ACTIVE = (YEAR_OF_FIRST_TROPHY..2016).to_a
 
-puts '=' * 80
-
 all_years = YEARS_ACTIVE.map do |starting_year|
     time_span = [season_for_year(starting_year), 
     season_for_year(starting_year+1), 
@@ -101,7 +99,7 @@ end
 
 puts '=' * 80
 
-top_of_the_pops_without_overlap.sort_by { |hsh| hsh[:points] }.reverse[0..11].each do |win|
+top_of_the_pops_without_overlap.sort_by { |hsh| hsh[:points] }.reverse[0..12].each do |win|
 
     trophies = win[:time_span].map do |ts|
         huge_results_thing_for_what_they_won[ts].select {|_,v| v == win[:winner]}.keys
