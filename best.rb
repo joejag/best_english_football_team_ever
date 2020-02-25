@@ -1,66 +1,32 @@
 require 'csv'
 
-points =  {
-    european_cup: 5,
-    league: 4,
-    uefa_cup: 3,
-    cup_winners_cup: 3,
-    fa_cup: 2,
-    league_cup: 1,
-    uefa_super_cup: 1,
-    club_world_cup: 1,
-    european_cup_second: 2,
-    league_second: 1
-}
+competitions = [
+    {name: 'league', winner_points: 4, second_points: 1, file: 'epl.csv', capture: ['Year', 'Champions', 'Runners-up']},
+    {name: 'fa cup', winner_points: 2, second_points: 0, file: 'fa.csv', capture: ['Season', 'Winners', 'Runners–up']},
+    {name: 'league cup', winner_points: 1, second_points: 0, file: 'league_cup.csv', capture: ['Final', 'Winner', 'Runner-up']},
+    
+    {name: 'european cup', winner_points: 5, second_points: 2, file: 'euros.csv', capture: ['Season', 'Winning Team', 'Runners-up Team']},
+    {name: 'uefa_cup', winner_points: 3, second_points: 0, file: 'uefa.csv', capture: ['Season', 'Winners', 'Runners-up']},
+    {name: 'cup_winners', winner_points: 3, second_points: 0, file: 'cupwinners.csv', capture: ['Season', 'Winner', 'Runners-up']},
+    {name: 'super_cup', winner_points: 1, second_points: 0, file: 'super_cup.csv', capture: ['Year', 'Winner', 'Runner-up']},
 
-# 3 year period
+    {name: 'club_world_cup', winner_points: 1, second_points: 0, file: 'club_world_cup.csv', capture: ['Season', 'Champions-Club', 'Runners-up-Club']}
+]
 
-# domestic
-
-league = CSV.parse(File.read("epl.csv"), headers: true).map do |row|
-    { year: row['Year'], winner: row['Champions'], second: row['Runners-up'] }
+all_competitions = competitions.map do |competition|
+    data = CSV.parse(File.read(competition[:file]), headers: true).map do |row|
+        { 
+          year: row[competition[:capture][0]].to_s.strip, 
+          winner: row[competition[:capture][1]].to_s.strip, 
+          second: row[competition[:capture][2]].to_s.strip
+       }
+    end
+    { results: data}.merge(competition)
 end
 
-fa = CSV.parse(File.read("fa.csv"), headers: true).map do |row|
-    { year: row['Season'], winner: row['Winners'].strip, second: row['Runners–up'] }
-end
-
-league_cup = CSV.parse(File.read("league_cup.csv"), headers: true).map do |row|
-    { year: row['Final'], winner: row['Winner'], second: row['Runner-up'] }
-end
-
-# europe
-
-euros = CSV.parse(File.read("euros.csv"), headers: true).map do |row|
-    { year: row['Season'], winner: row['Winning Team'], second: row['Runners-up Team'] }
-end
-
-uefa = CSV.parse(File.read("uefa.csv"), headers: true).map do |row|
-    { year: row['Season'], winner: row['Winners'], second: row['Runners-up'] }
-end
-
-cup_winners = CSV.parse(File.read("cupwinners.csv"), headers: true).map do |row|
-    { year: row['Season'], winner: row['Winner'], second: row['Runners-up'] }
-end
-
-super_cup = CSV.parse(File.read("super_cup.csv"), headers: true).map do |row|
-    { year: row['Year'], winner: row['Winner'], second: row['Runner-up'] }
-end
-
-club_world_cup = CSV.parse(File.read("club_world_cup.csv"), headers: true).map do |row|
-    { year: row['Season'], winner: row['Champions-Club'], second: row['Runners-up-Club'] }
-end
-
-puts '=' * 40
-
-lw = league.map { |y| y[:winner] }.sort.uniq
-faw = fa.map { |y| y[:winner] }.sort.uniq
-league_cupw = league_cup.map { |y| y[:winner] }.sort.uniq
-
-def flatten_teams trophy
-    (trophy.map { |y| y[:winner] } + trophy.map { |y| y[:second] }).uniq.sort
-end
-
-puts '=' * 10
-puts (flatten_teams(league) + flatten_teams(fa) + flatten_teams(league_cup) + flatten_teams(euros) + flatten_teams(uefa) + flatten_teams(cup_winners) + flatten_teams(super_cup) + flatten_teams(club_world_cup)).uniq.sort
-puts '=' * 10
+# Used to visually check for duplicate team listings
+a = all_competitions.map do |c| 
+    (c[:results].map { |y| y[:winner] } + c[:results].map { |y| y[:second] }).uniq.sort
+    # c[:results].map { |y| y[:year] }.sort.uniq
+end.flatten.uniq.sort
+puts a
